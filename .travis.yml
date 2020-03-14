@@ -7,3 +7,4 @@ addons:
       packages:
         - libcmocka-dev
         - libcmocka0
+        - valgrind
