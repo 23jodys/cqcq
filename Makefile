@@ -25,7 +25,7 @@ test_list: list.o test_list.o
 
 .PHONY: test
 test: test_list
-	./test_list
+	./test_list -a
 
 list.o: list.h
 
