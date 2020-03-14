@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <unistd.h>
 #include <cmocka.h>
 #include "list.h"
 #include "dbg.h"
@@ -166,19 +168,95 @@ static void test_list_copy_one_element(void** state) {
 
 }
 
-int main(void) {
-	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(test_list_length_simple),
-		cmocka_unit_test(test_list_length_null),
-		cmocka_unit_test(test_list_length_complex),
-		cmocka_unit_test(test_list_free_sets_null),
-		cmocka_unit_test(test_list_pop_simple),
-		cmocka_unit_test(test_list_push_pop),
-		cmocka_unit_test(test_list_list_empty),
-		cmocka_unit_test(test_list_append_simple),
+/**
+ * @brief Given that we attempt to copy a two element list, verify our copy is has the correct two value
+ */
+static void test_list_copy_two_element(void** state) {
+	List_T* list = List_list(INT(1), INT(2));
+	List_T* copy;
+
+	copy = List_copy(list);
+	int* test_value; 
+	copy = List_pop(copy, test_value);
+	assert_int_equal(1, *test_value);
+
+	copy = List_pop(copy, test_value);
+	assert_int_equal(2, *test_value);
+
+	List_free(&list);
+}
+
+int main(int argc, char* argv[]) {
+
+
+
+	const struct CMUnitTest test_list_copy_tests[] = {
 		cmocka_unit_test(test_list_copy),
 		cmocka_unit_test(test_list_copy_null),
 		cmocka_unit_test(test_list_copy_one_element),
+		cmocka_unit_test(test_list_copy_two_element),
 	};
-	cmocka_run_group_tests(tests, NULL, NULL);
+
+	const struct CMUnitTest test_list_length_tests[] = {
+		cmocka_unit_test(test_list_length_simple),
+		cmocka_unit_test(test_list_length_null),
+		cmocka_unit_test(test_list_length_complex),
+	};
+
+	const struct CMUnitTest test_list_misc_tests[] = {
+		cmocka_unit_test(test_list_free_sets_null),
+		cmocka_unit_test(test_list_pop_simple),
+		cmocka_unit_test(test_list_push_pop),
+		cmocka_unit_test(test_list_append_simple),
+	};
+
+	const struct CMUnitTest test_list_free_tests[] = {
+		cmocka_unit_test(test_list_free_sets_null),
+	}; 
+
+	const struct CMUnitTest test_list_list_tests[] = {
+		cmocka_unit_test(test_list_list_empty),
+	};
+
+	char** positionals;
+	bool all_tests = false;
+
+	for (;;) {
+		int opt = getopt(argc, argv, "a");
+		if (opt == -1) {
+			break;
+		}
+
+		if (opt == 'a') {
+			all_tests = true;
+		}
+	}
+
+	positionals = &argv[optind];
+	bool test_list_copy = false;
+	bool test_list_length = false;
+	bool test_list_list = false;
+	bool test_list_free = false;
+	bool test_list_misc = false;
+	#define set_test(name) if (strcmp(*positionals, #name) == 0) { name = true; }
+	for (; *positionals; positionals++) {
+		fprintf(stderr, "Positional: %s\n", *positionals);
+		set_test(test_list_copy);
+		set_test(test_list_length);
+		set_test(test_list_list);
+		set_test(test_list_free);
+		set_test(test_list_misc);
+	}
+	#define conditional_run_tests(name) if (name == true || all_tests == true) { total_failed_tests += cmocka_run_group_tests(name ## _tests, NULL, NULL);}
+
+	int total_failed_tests = 0;
+	conditional_run_tests(test_list_copy);
+	conditional_run_tests(test_list_length);
+	conditional_run_tests(test_list_list);
+	conditional_run_tests(test_list_free);
+	conditional_run_tests(test_list_misc);
+
+	printf("Failed tests: %d\n", total_failed_tests);
+
+	return total_failed_tests;
 }

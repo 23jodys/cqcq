@@ -24,15 +24,15 @@ test_list: LDLIBS += -lcmocka
 test_list: list.o test_list.o
 
 .PHONY: test
-test: test_cqcq test_list
-	./test_cqcq
+test: test_list
+	./test_list
 
 list.o: list.h
 
 cqcq.o: cqcq.h
 
 valgrind_%: %
-	valgrind --leak-check=full --suppressions=valgrind_suppressions.supp --error-exitcode=1 ./$*
+	valgrind --leak-check=full --error-exitcode=1 ./$*
 
 coverage: COVERAGE=1
 coverage: test

@@ -1,0 +1,9 @@
+language: c
+compiler: clang
+script: make valgrind_test_list
+dist: xenial
+addons:
+    apt:
+      packages:
+        - libcmocka-dev
+        - libcmocka0
