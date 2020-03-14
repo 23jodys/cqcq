@@ -32,7 +32,7 @@ list.o: list.h
 cqcq.o: cqcq.h
 
 valgrind_%: %
-	valgrind --leak-check=full --error-exitcode=1 ./$*
+	valgrind --leak-check=full --error-exitcode=1 ./$* -a
 
 coverage: COVERAGE=1
 coverage: test
